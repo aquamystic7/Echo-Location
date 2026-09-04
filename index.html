@@ -185,9 +185,9 @@
             border-radius: 20px;
             font-family: 'Courier New', monospace;
             font-size: 12px;
-            cursor: none !important; /* no cursor on buttons either */
+            cursor: none !important;
             transition: all 0.3s ease;
-            pointer-events: none; /* prevent mouse clicks, keyboard only */
+            pointer-events: none; /* keyboard only */
         }
         .diff-btn.active {
             background: #4a9eff;
@@ -233,7 +233,7 @@
 
         <!-- Difficulty Buttons (keyboard-controlled) -->
         <div class="difficulty-section">
-            <span class="difficulty-label">⚙️ DIFFICULTY <span style="color:#445566; font-weight:normal; font-size:9px;">(← → arrows on start screen)</span></span>
+            <span class="difficulty-label">⚙️ DIFFICULTY <span style="color:#445566; font-weight:normal; font-size:9px;">(← → arrows on start screen or game over)</span></span>
             <div class="difficulty-buttons" id="difficultyButtons">
                 <button class="diff-btn easy" data-diff="Easy">🟢 Easy</button>
                 <button class="diff-btn medium active" data-diff="Medium">🟡 Medium</button>
@@ -258,7 +258,7 @@
 
     <script>
         // ============================================================
-        // ECHO LOCATION – FULL GAME (KEYBOARD-ONLY DIFFICULTY)
+        // ECHO LOCATION – FULL GAME (KEYBOARD-ONLY DIFFICULTY + GAME OVER FIX)
         // ============================================================
 
         const canvas = document.getElementById('gameCanvas');
@@ -1257,7 +1257,6 @@
                 ctx.fillText('🎉 DISCO!', 15, 15);
             }
 
-            // Difficulty indicator during gameplay
             if (gameActive && !gameOver) {
                 ctx.fillStyle = '#66779966';
                 ctx.font = '10px monospace';
@@ -1348,7 +1347,7 @@
                 ctx.font = '10px monospace';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
-                ctx.fillText('⚙️ Change difficulty with ← → arrows (see below)', W / 2, H / 2 + 160);
+                ctx.fillText('⚙️ Change difficulty with ← → arrows (even after game over)', W / 2, H / 2 + 160);
             }
 
             ctx.restore();
@@ -1377,7 +1376,7 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // ----- KEYBOARD (with arrow-key difficulty) -----
+        // ----- KEYBOARD (FIXED: arrow keys work on start screen AND game over) -----
         function handleKeyDown(e) {
             const key = e.key;
             if (key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter' || key === ' ') {
@@ -1385,8 +1384,9 @@
                 initAudio();
             }
 
-            // ---- DIFFICULTY WITH ARROW KEYS (ON START SCREEN) ----
-            if (!gameActive && !gameOver && !countdownActive) {
+            // ---- DIFFICULTY WITH ARROW KEYS (START SCREEN OR GAME OVER) ----
+            // Condition: game is not active and not counting down => either start screen or game over
+            if (!gameActive && !countdownActive) {
                 if (key === 'ArrowLeft' || key === 'ArrowRight') {
                     const currentIndex = difficultyOptions.indexOf(currentDifficulty);
                     let newIndex;
@@ -1396,30 +1396,41 @@
                         newIndex = (currentIndex + 1) % difficultyOptions.length;
                     }
                     currentDifficulty = difficultyOptions[newIndex];
-                    updateActiveButton();
-                    statusSpan.textContent = '🎯 ' + currentDifficulty;
-                    statusSpan.style.color = '#4a9eff';
-                    clearTimeout(window._diffTimeout);
-                    window._diffTimeout = setTimeout(() => {
-                        if (!gameActive && !gameOver && !countdownActive) {
-                            statusSpan.textContent = '▶ PRESS ENTER';
-                            statusSpan.style.color = '#ffd93d';
-                        }
-                    }, 1500);
+                    updateActiveButton(); // highlight the new button
+                    // Optionally update status (but don't override GAME OVER message)
+                    if (!gameOver) {
+                        statusSpan.textContent = '🎯 ' + currentDifficulty;
+                        statusSpan.style.color = '#4a9eff';
+                        clearTimeout(window._diffTimeout);
+                        window._diffTimeout = setTimeout(() => {
+                            if (!gameActive && !gameOver && !countdownActive) {
+                                statusSpan.textContent = '▶ PRESS ENTER';
+                                statusSpan.style.color = '#ffd93d';
+                            }
+                        }, 1500);
+                    }
                     return;
                 }
             }
 
-            // ---- ENTER ----
+            // ---- ENTER KEY ----
             if (key === 'Enter') {
-                if (gameOver) { resetGame(); return; }
-                if (!gameActive && !countdownActive) { resetGame(); return; }
-                if (gameActive && !gameOver) { activateSonar();
-                    checkDiscoMode(); }
+                if (gameOver) {
+                    resetGame(); // restart with new difficulty
+                    return;
+                }
+                if (!gameActive && !countdownActive) {
+                    resetGame(); // start a new game
+                    return;
+                }
+                if (gameActive && !gameOver) {
+                    activateSonar();
+                    checkDiscoMode();
+                }
                 return;
             }
 
-            // ---- ARROW KEYS FOR MOVEMENT ----
+            // ---- ARROW KEYS FOR MOVEMENT (during gameplay) ----
             if (gameActive && !gameOver) {
                 if (key === 'ArrowLeft') leftPressed = true;
                 else if (key === 'ArrowRight') rightPressed = true;
@@ -1467,7 +1478,7 @@
         console.log('🔥 Combo system: collect fireflies in a row for bonus points!');
         console.log('💡 Power-ups: 🛡️⚡🧲⭐⏳🔽🌈❤️');
         console.log('⏳ Sonar cooldown: 5 seconds between pings.');
-        console.log('⚙️ Difficulty: ' + currentDifficulty + ' (Use ← → arrows on start screen to change)');
+        console.log('⚙️ Difficulty: ' + currentDifficulty + ' (Use ← → arrows on start screen or after game over)');
     </script>
 </body>
 </html>
