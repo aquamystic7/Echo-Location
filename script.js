@@ -1471,3 +1471,118 @@ console.log('🔥 Combo system: collect fireflies in a row for bonus points!');
 console.log('💡 Power-ups: 🛡️⚡🧲⭐⏳🔽🌈❤️');
 console.log('⏳ Sonar cooldown: 5 seconds between pings.');
 console.log('⚙️ Difficulty: ' + currentDifficulty + ' (Click or use ← → to change on start screen)');
+
+// ============================================================
+// MOBILE TOUCH CONTROLS
+// ============================================================
+
+// Get the buttons
+const touchLeft = document.getElementById('touchLeft');
+const touchRight = document.getElementById('touchRight');
+const touchEnter = document.getElementById('touchEnter');
+
+// ----- LEFT BUTTON -----
+touchLeft.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    leftPressed = true;
+    this.style.background = 'rgba(74, 158, 255, 0.4)';
+    this.style.transform = 'scale(0.92)';
+});
+
+touchLeft.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    leftPressed = false;
+    this.style.background = 'rgba(74, 158, 255, 0.15)';
+    this.style.transform = 'scale(1)';
+});
+
+touchLeft.addEventListener('touchcancel', function(e) {
+    leftPressed = false;
+    this.style.background = 'rgba(74, 158, 255, 0.15)';
+    this.style.transform = 'scale(1)';
+});
+
+// ----- RIGHT BUTTON -----
+touchRight.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    rightPressed = true;
+    this.style.background = 'rgba(74, 158, 255, 0.4)';
+    this.style.transform = 'scale(0.92)';
+});
+
+touchRight.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    rightPressed = false;
+    this.style.background = 'rgba(74, 158, 255, 0.15)';
+    this.style.transform = 'scale(1)';
+});
+
+touchRight.addEventListener('touchcancel', function(e) {
+    rightPressed = false;
+    this.style.background = 'rgba(74, 158, 255, 0.15)';
+    this.style.transform = 'scale(1)';
+});
+
+// ----- ENTER BUTTON (Sonar + Disco) -----
+let touchEnterPressCount = 0;
+let touchLastEnterTime = 0;
+
+touchEnter.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    this.style.background = 'rgba(255, 215, 0, 0.4)';
+    this.style.transform = 'scale(0.92)';
+    this.style.borderColor = '#ffd93d';
+    this.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.3)';
+
+    // Check for Disco Mode (5 quick taps)
+    const now = Date.now();
+    if (now - touchLastEnterTime < 500) {
+        touchEnterPressCount++;
+    } else {
+        touchEnterPressCount = 1;
+    }
+    touchLastEnterTime = now;
+
+    if (touchEnterPressCount >= 5) {
+        enterPressCount = 5;
+        checkDiscoMode();
+        touchEnterPressCount = 0;
+        this.style.background = 'rgba(255, 100, 255, 0.6)';
+        this.style.borderColor = '#ff6bff';
+        setTimeout(() => {
+            this.style.background = 'rgba(255, 215, 0, 0.15)';
+            this.style.borderColor = 'rgba(255, 215, 0, 0.3)';
+            this.style.boxShadow = 'none';
+        }, 300);
+        return;
+    }
+
+    // Normal Sonar Ping or Start/Restart
+    if (gameActive && !gameOver && !countdownActive) {
+        activateSonar();
+    } else if (gameOver || (!gameActive && !countdownActive)) {
+        resetGame();
+    }
+});
+
+touchEnter.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    this.style.background = 'rgba(255, 215, 0, 0.15)';
+    this.style.transform = 'scale(1)';
+    this.style.borderColor = 'rgba(255, 215, 0, 0.3)';
+    this.style.boxShadow = 'none';
+});
+
+touchEnter.addEventListener('touchcancel', function(e) {
+    this.style.background = 'rgba(255, 215, 0, 0.15)';
+    this.style.transform = 'scale(1)';
+    this.style.borderColor = 'rgba(255, 215, 0, 0.3)';
+    this.style.boxShadow = 'none';
+});
+
+// ---- Prevent touch scrolling ----
+document.querySelector('.game-container').addEventListener('touchmove', function(e) {
+    e.preventDefault();
+}, { passive: false });
+
+console.log('📱 Touch controls loaded!');

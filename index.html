@@ -212,11 +212,106 @@
             .high-score-badge { font-size: 11px; padding: 3px 10px; }
             .diff-btn { padding: 4px 12px; font-size: 10px; }
         }
+
+        /* ===== TOUCH CONTROLS ===== */
+        #touchControls {
+            display: none; /* hidden by default */
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            justify-content: space-between;
+            padding: 0 20;
+            gap: 10px;
+            z-index: 100;
+            pointer-events: none;
+            max-width: 550px;
+            margin: 0 auto;
+        } 
+
+        .touch-btn {
+            pointer-events: auto; /* allow touches */
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            background: rgba(74, 158, 255, 0.15);
+            color: #aabbdd;
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;      /* prevent scrolling */
+            user-select: none;
+            -webkit-user-select: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.1);
+            transition: all 0.1s ease;
+        }
+
+        /* When button is pressed (active) */
+        .touch-btn:active {
+            background: rgba(74, 158, 255, 0.4);
+            transform: scale(0.92);
+            border-color: #4a9eff;
+            box-shadow: 0 0 30px rgba(74, 158, 255, 0.3);
+        }
+
+        /* Enter button (middle) – yellow theme */ 
+        #touchEnter {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.3);
+            color: #ffd93d;
+        }
+        #touchEnter:active {
+            background: rgba(255, 215, 0, 0.4);
+            border-color: #ffd93d;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Push left/right buttons to edge */
+        #touchLeft {margin-right: auto;}
+        #touchRight {margin-left: auto;}
+
+        /* ONLY SHOW ON MOBILE (touch devices) */
+        @media (max-width: 768px) and (pointer: coarse) {
+            #touchControls {
+                display: flex !important;
+            }
+            /* Hide keyboard hints on mobile (since you use touch) */
+            .controls-hint kbd {
+                display: none;
+            }
+        }
+
+        /* Smaller buttons on very small screen */
+        @media (max-width: 500px) {
+            .touch-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 22px;
+            }
+            #touchEnter {
+                padding: 0 15px;
+                bottom: 15px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
         <canvas id="gameCanvas" width="500" height="600"></canvas>
+
+        <!-- ===== MOBILE TOUCH CONTROLS -->
+         <div id="touchControls">
+            <button id="touchLeft" class="touch-btn">◀</button>
+            <button id="touchEnter" class="touch-btn">⏎</button>
+            <button id="touchRight" class="touch-btn">▶</button>
+         </div>
 
         <div class="ui">
             <span class="score-box">🦇 <span id="scoreDisplay">0</span></span>
@@ -1478,7 +1573,7 @@
         console.log('🔥 Combo system: collect fireflies in a row for bonus points!');
         console.log('💡 Power-ups: 🛡️⚡🧲⭐⏳🔽🌈❤️');
         console.log('⏳ Sonar cooldown: 5 seconds between pings.');
-        console.log('⚙️ Difficulty: ' + currentDifficulty + ' (Use ← → arrows on start screen or after game over)');
-    </script>
+        console.log('⚙️ Difficulty: ' + currentDifficulty + ' (Use ← → arrows on start screen or after game over)');        
+ </script>
 </body>
 </html>
