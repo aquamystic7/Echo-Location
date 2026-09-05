@@ -227,6 +227,22 @@ const DIFFICULTY = {
     }
 };
 
+// ----- GET DIFFICULTY BUTTONS -----
+const diffButtons = document.querySelectorAll('.diff-btn');
+
+// ----- UPDATE ACTIVE BUTTON HIGHLIGHT -----
+function updateActiveButton() {
+    diffButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.diff === currentDifficulty) {
+            btn.classList.add('active');
+        }
+    })
+}
+
+// Call it once to highlight the initial difficulty
+updateActiveButton();
+
 // ============================================================
 // FEATURES
 // ============================================================
@@ -1258,54 +1274,6 @@ function draw() {
         ctx.fillStyle = '#4a9eff88';
         ctx.font = '9px monospace';
         ctx.fillText('💡 Power-ups: 🛡️⚡🧲⭐⏳🔽🌈❤️', W / 2, H / 2 + 134);
-
-        // ---- DIFFICULTY BUTTONS ----
-        ctx.fillStyle = '#667799';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText('⚙️ DIFFICULTY:', W / 2, H / 2 + 155);
-
-        const buttonWidth = 60;
-        const buttonHeight = 24;
-        const spacing = 8;
-        const totalWidth = difficultyOptions.length * (buttonWidth + spacing) - spacing;
-        const startX = (W - totalWidth) / 2;
-        const buttonY = H / 2 + 163;
-
-        window._diffButtons = [];
-
-        for (let i = 0; i < difficultyOptions.length; i++) {
-            const x = startX + i * (buttonWidth + spacing);
-            const isSelected = difficultyOptions[i] === currentDifficulty;
-
-            ctx.fillStyle = isSelected ? '#4a9eff' : 'rgba(255,255,255,0.05)';
-            ctx.strokeStyle = isSelected ? '#4a9eff' : '#2a3a5a';
-            ctx.lineWidth = 1.5;
-            ctx.roundRect(x, buttonY, buttonWidth, buttonHeight, 6);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.fillStyle = isSelected ? '#ffffff' : '#8899bb';
-            ctx.font = isSelected ? 'bold 10px monospace' : '10px monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(difficultyOptions[i], x + buttonWidth / 2, buttonY + buttonHeight / 2);
-
-            window._diffButtons.push({
-                x: x,
-                y: buttonY,
-                w: buttonWidth,
-                h: buttonHeight,
-                label: difficultyOptions[i]
-            });
-        }
-
-        ctx.fillStyle = '#44556666';
-        ctx.font = '8px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText('Click or use ← → arrow keys', W / 2, buttonY + buttonHeight + 4);
     }
 
     ctx.restore();
@@ -1342,17 +1310,23 @@ function handleKeyDown(e) {
         initAudio();
     }
 
-    // ---- DIFFICULTY SELECTION WITH ARROW KEYS (ON START SCREEN) ----
-    if (!gameActive && !gameOver && !countdownActive) {
-        if (key === 'ArrowLeft' || key === 'ArrowRight') {
-            const currentIndex = difficultyOptions.indexOf(currentDifficulty);
-            let newIndex;
-            if (key === 'ArrowLeft') {
-                newIndex = (currentIndex - 1 + difficultyOptions.length) % difficultyOptions.length;
-            } else { // ArrowRight
-                newIndex = (currentIndex + 1) % difficultyOptions.length;
-            }
-            currentDifficulty = difficultyOptions[newIndex];
+    // ---- DIFFICULTY SELECTION WITH ARROW KEYS (START SCREEN OR GAME OVER) ----
+if (!gameActive && !countdownActive) {   // <-- REMOVED !gameOver
+    if (key === 'ArrowLeft' || key === 'ArrowRight') {
+        const currentIndex = difficultyOptions.indexOf(currentDifficulty);
+        let newIndex;
+        if (key === 'ArrowLeft') {
+            newIndex = (currentIndex - 1 + difficultyOptions.length) % difficultyOptions.length;
+        } else {
+            newIndex = (currentIndex + 1) % difficultyOptions.length;
+        }
+        currentDifficulty = difficultyOptions[newIndex];
+
+        // === ADD THIS LINE ===
+        updateActiveButton();   // highlights the correct HTML button
+
+        // Only update status if not game over (don't override "GAME OVER" message)
+        if (!gameOver) {
             statusSpan.textContent = '🎯 ' + currentDifficulty;
             statusSpan.style.color = '#4a9eff';
             clearTimeout(window._diffTimeout);
@@ -1362,9 +1336,10 @@ function handleKeyDown(e) {
                     statusSpan.style.color = '#ffd93d';
                 }
             }, 1500);
-            return;
         }
+        return;
     }
+}
 
     // ---- ENTER KEY ----
     if (key === 'Enter') {
@@ -1396,38 +1371,9 @@ function handleKeyUp(e) {
         e.preventDefault();
     }
     if (key === 'ArrowLeft') leftPressed = false;
-    if (key === 'ArrowRight') rightPressed = false;
+    if (key === 'ArrowRight') rightPressed = false
+    ;
 }
-
-// ----- DIFFICULTY SELECTION (Click Handler) -----
-canvas.addEventListener('click', function(e) {
-    if (gameActive || gameOver || countdownActive) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const mouseX = (e.clientX - rect.left) * scaleX;
-    const mouseY = (e.clientY - rect.top) * scaleY;
-
-    if (window._diffButtons) {
-        for (let btn of window._diffButtons) {
-            if (mouseX >= btn.x && mouseX <= btn.x + btn.w &&
-                mouseY >= btn.y && mouseY <= btn.y + btn.h) {
-                currentDifficulty = btn.label;
-                statusSpan.textContent = '🎯 ' + currentDifficulty;
-                statusSpan.style.color = '#4a9eff';
-                clearTimeout(window._diffTimeout);
-                window._diffTimeout = setTimeout(() => {
-                    if (!gameActive && !gameOver && !countdownActive) {
-                        statusSpan.textContent = '▶ PRESS ENTER';
-                        statusSpan.style.color = '#ffd93d';
-                    }
-                }, 1500);
-                break;
-            }
-        }
-    }
-});
 
 window.addEventListener('blur', () => { leftPressed = false;
     rightPressed = false; });
@@ -1473,116 +1419,123 @@ console.log('⏳ Sonar cooldown: 5 seconds between pings.');
 console.log('⚙️ Difficulty: ' + currentDifficulty + ' (Click or use ← → to change on start screen)');
 
 // ============================================================
-// MOBILE TOUCH CONTROLS
+// TOUCH CONTROLS – CLEAN WORKING VERSION
 // ============================================================
 
-// Get the buttons
+console.log('📱 Initializing touch controls...');
+
+// Get buttons
 const touchLeft = document.getElementById('touchLeft');
 const touchRight = document.getElementById('touchRight');
 const touchEnter = document.getElementById('touchEnter');
 
+// Verify buttons exist
+if (!touchLeft || !touchRight || !touchEnter) {
+    console.error('❌ Touch buttons not found in HTML!');
+} else {
+    console.log('✅ Touch buttons found');
+}
+
 // ----- LEFT BUTTON -----
-touchLeft.addEventListener('touchstart', function(e) {
+function onLeftStart(e) {
     e.preventDefault();
     leftPressed = true;
-    this.style.background = 'rgba(74, 158, 255, 0.4)';
-    this.style.transform = 'scale(0.92)';
-});
-
-touchLeft.addEventListener('touchend', function(e) {
+    touchLeft.classList.add('active-touch');
+}
+function onLeftEnd(e) {
     e.preventDefault();
     leftPressed = false;
-    this.style.background = 'rgba(74, 158, 255, 0.15)';
-    this.style.transform = 'scale(1)';
-});
+    touchLeft.classList.remove('active-touch');
+}
 
-touchLeft.addEventListener('touchcancel', function(e) {
-    leftPressed = false;
-    this.style.background = 'rgba(74, 158, 255, 0.15)';
-    this.style.transform = 'scale(1)';
-});
+touchLeft.addEventListener('touchstart', onLeftStart);
+touchLeft.addEventListener('touchend', onLeftEnd);
+touchLeft.addEventListener('touchcancel', onLeftEnd);
+touchLeft.addEventListener('mousedown', onLeftStart);
+touchLeft.addEventListener('mouseup', onLeftEnd);
+touchLeft.addEventListener('mouseleave', onLeftEnd);
 
 // ----- RIGHT BUTTON -----
-touchRight.addEventListener('touchstart', function(e) {
+function onRightStart(e) {
     e.preventDefault();
     rightPressed = true;
-    this.style.background = 'rgba(74, 158, 255, 0.4)';
-    this.style.transform = 'scale(0.92)';
-});
-
-touchRight.addEventListener('touchend', function(e) {
+    touchRight.classList.add('active-touch');
+}
+function onRightEnd(e) {
     e.preventDefault();
     rightPressed = false;
-    this.style.background = 'rgba(74, 158, 255, 0.15)';
-    this.style.transform = 'scale(1)';
-});
+    touchRight.classList.remove('active-touch');
+}
 
-touchRight.addEventListener('touchcancel', function(e) {
-    rightPressed = false;
-    this.style.background = 'rgba(74, 158, 255, 0.15)';
-    this.style.transform = 'scale(1)';
-});
+touchRight.addEventListener('touchstart', onRightStart);
+touchRight.addEventListener('touchend', onRightEnd);
+touchRight.addEventListener('touchcancel', onRightEnd);
+touchRight.addEventListener('mousedown', onRightStart);
+touchRight.addEventListener('mouseup', onRightEnd);
+touchRight.addEventListener('mouseleave', onRightEnd);
 
-// ----- ENTER BUTTON (Sonar + Disco) -----
-let touchEnterPressCount = 0;
-let touchLastEnterTime = 0;
+// ----- ENTER BUTTON -----
+let tapCount = 0;
+let lastTapTime = 0;
 
-touchEnter.addEventListener('touchstart', function(e) {
+function onEnterStart(e) {
     e.preventDefault();
-    this.style.background = 'rgba(255, 215, 0, 0.4)';
-    this.style.transform = 'scale(0.92)';
-    this.style.borderColor = '#ffd93d';
-    this.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.3)';
+    touchEnter.classList.add('active-touch');
 
-    // Check for Disco Mode (5 quick taps)
     const now = Date.now();
-    if (now - touchLastEnterTime < 500) {
-        touchEnterPressCount++;
+    if (now - lastTapTime < 500) {
+        tapCount++;
     } else {
-        touchEnterPressCount = 1;
+        tapCount = 1;
     }
-    touchLastEnterTime = now;
+    lastTapTime = now;
 
-    if (touchEnterPressCount >= 5) {
+    // Disco mode: 5 quick taps
+    if (tapCount >= 5) {
+        console.log('🎉 Disco triggered from touch!');
         enterPressCount = 5;
         checkDiscoMode();
-        touchEnterPressCount = 0;
-        this.style.background = 'rgba(255, 100, 255, 0.6)';
-        this.style.borderColor = '#ff6bff';
+        tapCount = 0;
+        touchEnter.style.background = 'rgba(255, 100, 255, 0.6)';
+        touchEnter.style.borderColor = '#ff6bff';
         setTimeout(() => {
-            this.style.background = 'rgba(255, 215, 0, 0.15)';
-            this.style.borderColor = 'rgba(255, 215, 0, 0.3)';
-            this.style.boxShadow = 'none';
-        }, 300);
+            touchEnter.style.background = '';
+            touchEnter.style.borderColor = '';
+            touchEnter.classList.remove('active-touch');
+        }, 400);
         return;
     }
 
-    // Normal Sonar Ping or Start/Restart
+    // Normal action
     if (gameActive && !gameOver && !countdownActive) {
+        console.log('🔊 Sonar from touch');
         activateSonar();
     } else if (gameOver || (!gameActive && !countdownActive)) {
+        console.log('🔄 Start/Restart from touch');
         resetGame();
     }
-});
+}
 
-touchEnter.addEventListener('touchend', function(e) {
+function onEnterEnd(e) {
     e.preventDefault();
-    this.style.background = 'rgba(255, 215, 0, 0.15)';
-    this.style.transform = 'scale(1)';
-    this.style.borderColor = 'rgba(255, 215, 0, 0.3)';
-    this.style.boxShadow = 'none';
-});
+    touchEnter.classList.remove('active-touch');
+    touchEnter.style.background = '';
+    touchEnter.style.borderColor = '';
+}
 
-touchEnter.addEventListener('touchcancel', function(e) {
-    this.style.background = 'rgba(255, 215, 0, 0.15)';
-    this.style.transform = 'scale(1)';
-    this.style.borderColor = 'rgba(255, 215, 0, 0.3)';
-    this.style.boxShadow = 'none';
-});
+touchEnter.addEventListener('touchstart', onEnterStart);
+touchEnter.addEventListener('touchend', onEnterEnd);
+touchEnter.addEventListener('touchcancel', onEnterEnd);
+touchEnter.addEventListener('mousedown', onEnterStart);
+touchEnter.addEventListener('mouseup', onEnterEnd);
+touchEnter.addEventListener('mouseleave', onEnterEnd);
 
-// ---- Prevent touch scrolling ----
-document.querySelector('.game-container').addEventListener('touchmove', function(e) {
-    e.preventDefault();
-}, { passive: false });
+// ----- Prevent scrolling on touch -----
+const container = document.querySelector('.game-container');
+if (container) {
+    container.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+}
 
-console.log('📱 Touch controls loaded!');
+console.log('📱 Touch controls ready!');
