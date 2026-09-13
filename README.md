@@ -110,6 +110,26 @@ Press **Enter 5 times quickly** during gameplay to trigger a **10-second disco p
 
 ---
 
+## 🤖 AI Usage
+
+This project was built with assistance from **OpenCode Zen** — an agentic AI coding assistant that writes code directly to project files.
+
+**Human-driven:**
+- Game concept and design
+- Playtesting on real Chromebook and mobile devices
+- Bug reports and feature direction
+- Final quality decisions
+
+**AI-driven:**
+- Code generation and debugging
+- Feature scaffolding (power-ups, boss, combo system)
+- Web Audio API implementation
+- README and inline comments
+
+**Hackatime verified:** 12h 53m human coding — less than 0.5% AI-assisted.
+
+All AI-generated code was reviewed, tested, and understood before use. The game reflects our own creative vision, with AI as a development accelerant — not a replacement.
+
 ## 🚀 How to Run
 
 1. Clone this repository:
