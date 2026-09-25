@@ -1,5 +1,3 @@
-// bat game. 3 keys only. left right enter. echo location style.
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreSpan = document.getElementById('scoreDisplay');
@@ -9,7 +7,6 @@ const highScoreSpan = document.getElementById('highScoreDisplay');
 const W = 500;
 const H = 600;
 
-// score saving
 let highScore = parseInt(localStorage.getItem('echoHighScore')) || 0;
 
 function refreshHighScore() {
@@ -24,7 +21,6 @@ function trySaveScore() {
     }
 }
 
-// flash a message then go back to normal after a moment
 let statusTimer = null;
 
 function flashStatus(text, color, duration) {
@@ -40,7 +36,6 @@ function flashStatus(text, color, duration) {
     }, duration);
 }
 
-// difficulty settings
 let currentDifficulty = 'Medium';
 const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
@@ -60,8 +55,6 @@ function highlightCurrentDiff() {
 }
 highlightCurrentDiff();
 
-// ---- audio ----
-// all sounds generated live with Web Audio. no files needed
 let audioCtx = null;
 
 function ensureAudio() {
@@ -179,7 +172,7 @@ function bossHitSound() {
 function bossDefeatedSound() {
     try {
         ensureAudio();
-        // three beeps going up. victory chime
+
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
                 const o = audioCtx.createOscillator();
@@ -197,7 +190,6 @@ function bossDefeatedSound() {
     } catch (e) {}
 }
 
-// background beat. gets faster as score climbs
 let musicTimer = null;
 let musicTempo = 1;
 
@@ -240,7 +232,6 @@ function musicTick() {
     } catch (e) {}
 }
 
-// game variables
 const BAT_WIDTH = 44;
 const BAT_HEIGHT = 44;
 const BAT_Y = H - 80;
@@ -290,7 +281,6 @@ let discoMode = false;
 let discoTimer = 0;
 let discoHue = 0;
 
-// powerups
 let shieldActive = false;
 let shieldTimer = 0;
 const SHIELD_DURATION = 300;
@@ -356,7 +346,6 @@ const POWERUP_COLORS = {
     extralife: '#ff4444'
 };
 
-// boss
 let bossActive = false;
 let bossHealth = 0;
 const BOSS_MAX_HEALTH = 10;
@@ -368,7 +357,6 @@ const BOSS_ATTACK_COOLDOWN = 45;
 let bossProjectiles = [];
 let bossDefeated = false;
 
-// helpers
 
 function shakeScreen(amount) {
     shakeIntensity = Math.min(shakeIntensity + amount, 12);
@@ -505,9 +493,6 @@ function trackDiscoPress() {
     }
 }
 
-// ---- powerup effects ----
-// each one used to live inside a giant switch. pulled them out
-// so the pickup code stays readable.
 
 function grabShield() {
     shieldActive = true;
@@ -563,7 +548,6 @@ function grabExtraLife() {
     flashStatus(`❤️ +1 LIFE! (${extraLives} total)`, '#ff4444', 1500);
 }
 
-// lookup table so we don't need a chain of ifs
 const POWERUP_ACTIONS = {
     shield: grabShield,
     speed: grabSpeed,
@@ -575,7 +559,6 @@ const POWERUP_ACTIONS = {
     extralife: grabExtraLife
 };
 
-// player got hit. returns true if the run ends
 function handlePlayerHit(hitX, hitY, sourceList, idx) {
     if (shieldActive) {
         shieldActive = false;
@@ -607,7 +590,6 @@ function killBoss() {
     sonarCooldownFrames = 300;
 }
 
-// starting over
 function startNewGame() {
     const cfg = DIFFICULTY[currentDifficulty];
     beeSpawnRate = cfg.beeSpawnRate;
@@ -766,7 +748,6 @@ function fadeParticles() {
     }
 }
 
-// update
 function update() {
     if (countdownActive) {
         fadeParticles();
@@ -791,7 +772,6 @@ function update() {
         return;
     }
 
-    // move the bat
     let spd = player.speed;
     if (speedBoostActive) spd = originalSpeed * 2;
 
@@ -801,7 +781,6 @@ function update() {
 
     dropTrail(player.x, player.y);
 
-    // tick powerup timers
     if (shieldActive && --shieldTimer <= 0) shieldActive = false;
     if (speedBoostActive) {
         speedBoostTimer--;
@@ -823,7 +802,6 @@ function update() {
     }
     if (multiShotActive && --multiShotTimer <= 0) multiShotActive = false;
 
-    // sonar
     if (sonarActive) {
         sonarTimer--;
         if (sonarTimer <= 0) {
@@ -833,14 +811,12 @@ function update() {
     }
     if (sonarCooldown > 0) sonarCooldown--;
 
-    // spawn powerups
     powerupSpawnTimer++;
     if (powerupSpawnTimer >= POWERUP_SPAWN_INTERVAL && score > 3) {
         if (Math.random() < 0.3) makePowerup();
         powerupSpawnTimer = 0;
     }
 
-    // powerup pickup
     for (let i = powerups.length - 1; i >= 0; i--) {
         const p = powerups[i];
         p.y += p.speed;
@@ -860,7 +836,6 @@ function update() {
         if (p.y > H + 20) powerups.splice(i, 1);
     }
 
-    // magnet pull
     if (magnetActive) {
         for (let ff of fireflies) {
             const dx = (player.x + player.w/2) - (ff.x + ff.w/2);
@@ -879,7 +854,6 @@ function update() {
         }
     }
 
-    // fireflies
     for (let i = fireflies.length - 1; i >= 0; i--) {
         const ff = fireflies[i];
         ff.y += ff.speed;
@@ -906,7 +880,6 @@ function update() {
         if (ff.y > H + 20) fireflies.splice(i, 1);
     }
 
-    // boss spawn (only once)
     if (score >= 150 && !bossActive && !bossDefeated && !gameOver && gameActive) {
         obstacles = [];
 
@@ -923,7 +896,6 @@ function update() {
         powerupSound();
     }
 
-    // spawn obstacles / fireflies
     if (!bossActive && !bossDefeated) {
         const rate = Math.max(12, beeSpawnRate - Math.floor(score / 6));
 
@@ -941,7 +913,6 @@ function update() {
         }
     }
 
-    // obstacles
     for (let i = obstacles.length - 1; i >= 0; i--) {
         const obs = obstacles[i];
         obs.y += obs.speed;
@@ -957,7 +928,6 @@ function update() {
 
     fadeParticles();
 
-    // boss fight
     if (bossActive && !gameOver) {
         bossX += Math.sin(frameCount * 0.025) * 1.8;
         bossX = Math.max(0, Math.min(W - BOSS_SIZE, bossX));
@@ -981,7 +951,6 @@ function update() {
             });
         }
 
-        // his shots
         for (let i = bossProjectiles.length - 1; i >= 0; i--) {
             const p = bossProjectiles[i];
             p.x += p.vx;
@@ -999,7 +968,6 @@ function update() {
             }
         }
 
-        // did the sonar hit him?
         if (sonarActive) {
             const dx = player.x + player.w/2 - bossX - BOSS_SIZE/2;
             const dy = player.y + player.h/2 - bossY - BOSS_SIZE/2;
@@ -1022,7 +990,6 @@ function update() {
         }
     }
 
-    // occasional double obstacle drop
     if (frameCount % 100 === 0 && score > 5 && !bossActive && !bossDefeated) {
         if (Math.random() < 0.3) {
             makeObstacle();
@@ -1033,13 +1000,11 @@ function update() {
     frameCount++;
 }
 
-// draw
 function draw() {
     ctx.save();
     updateScreenShake();
     ctx.translate(shakeX, shakeY);
 
-    // disco background
     if (discoMode) {
         discoTimer--;
         discoHue = (discoHue + 2) % 360;
@@ -1093,7 +1058,6 @@ function draw() {
         ctx.fillRect(0, 0, W, H);
     }
 
-    // countdown overlay
     if (countdownActive) {
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 0, W, H);
@@ -1115,7 +1079,6 @@ function draw() {
         return;
     }
 
-    // faint grid during sonar or game over
     if (sonarActive || gameOver) {
         ctx.strokeStyle = 'rgba(30,60,120,0.08)';
         ctx.lineWidth = 1;
@@ -1134,7 +1097,6 @@ function draw() {
         }
     }
 
-    // fireflies
     for (let ff of fireflies) {
         const grad = ctx.createRadialGradient(
             ff.x + ff.w/2, ff.y + ff.h/2, 2,
@@ -1178,7 +1140,6 @@ function draw() {
         ctx.shadowBlur = 0;
     }
 
-    // obstacles
     for (let obs of obstacles) {
         const visible = sonarActive || obs.y < 80;
 
@@ -1214,7 +1175,6 @@ function draw() {
         ctx.shadowBlur = 0;
     }
 
-    // falling powerups
     for (let p of powerups) {
         const glow = 0.7 + 0.3 * Math.sin(p.pulse);
 
@@ -1236,7 +1196,6 @@ function draw() {
 
     ctx.shadowBlur = 0;
 
-    // sonar wave
     if (sonarActive) {
         const flashAlpha = (sonarTimer / SONAR_DURATION) * 0.15;
         ctx.fillStyle = `rgba(74,158,255,${flashAlpha})`;
@@ -1257,7 +1216,6 @@ function draw() {
         ctx.stroke();
     }
 
-    // trail
     for (let p of trailParticles) {
         const alpha = p.life / p.maxLife;
         ctx.globalAlpha = alpha * 0.6;
@@ -1268,7 +1226,6 @@ function draw() {
     }
     ctx.globalAlpha = 1;
 
-    // boss
     if (bossActive) {
         const glowGrad = ctx.createRadialGradient(
             bossX + BOSS_SIZE/2, bossY + BOSS_SIZE/2, 5,
@@ -1346,7 +1303,6 @@ function draw() {
         ctx.arc(bossX + BOSS_SIZE/2, bossY + 42, 16, 0, Math.PI);
         ctx.fill();
 
-        // teeth
         ctx.fillStyle = '#ffffff';
         for (let i = 0; i < 5; i++) {
             const tx = bossX + 10 + i * 9;
@@ -1369,7 +1325,6 @@ function draw() {
             ctx.fill();
         }
 
-        // his hp bar
         const hpAbove = bossY - 16;
         const hpWidth = BOSS_SIZE * (bossHealth / BOSS_MAX_HEALTH);
 
@@ -1388,7 +1343,6 @@ function draw() {
         ctx.textBaseline = 'bottom';
         ctx.fillText('👹 BOSS', bossX + BOSS_SIZE/2, hpAbove - 4);
 
-        // his shots
         for (let p of bossProjectiles) {
             ctx.shadowColor = '#ff6600';
             ctx.shadowBlur = 20;
@@ -1423,7 +1377,6 @@ function draw() {
         }
     }
 
-    // bat
     let glowCol = '#4a9eff';
     let glowAmt = 30;
 
@@ -1507,7 +1460,6 @@ function draw() {
     ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
 
-    // sonar charge bar (bottom-left corner)
     if (gameActive && !gameOver) {
         ctx.fillStyle = 'rgba(255,255,255,0.05)';
         ctx.fillRect(20, H - 25, 100, 6);
@@ -1519,7 +1471,6 @@ function draw() {
         ctx.font = '8px monospace';
         ctx.fillText('SONAR', 25, H - 15);
 
-        // cooldown swipe
         if (sonarCooldown > 0) {
             const recharge = 1 - (sonarCooldown / sonarCooldownFrames);
             ctx.fillStyle = `rgba(255,200,100,${0.5 * recharge})`;
@@ -1583,7 +1534,6 @@ function draw() {
         ctx.fillText('⚙️ ' + currentDifficulty, W - 10, 40);
     }
 
-    // game over
     if (gameOver) {
         ctx.fillStyle = 'rgba(0,0,0,0.75)';
         ctx.fillRect(0, 0, W, H);
@@ -1637,7 +1587,6 @@ function draw() {
         ctx.fillText('PRESS ENTER TO RESTART', W/2, H - 25);
     }
 
-    // start screen
     if (!gameActive && !gameOver && !countdownActive) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(0, 0, W, H);
@@ -1685,7 +1634,6 @@ function draw() {
     ctx.restore();
 }
 
-// polyfill for roundRect
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
@@ -1702,7 +1650,6 @@ CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     return this;
 };
 
-// render loop
 function tick() {
     update();
     draw();
@@ -1731,7 +1678,6 @@ function switchDifficulty(key) {
     }, 1500);
 }
 
-// keyboard
 function onKeyDown(e) {
     const key = e.key;
 
@@ -1781,7 +1727,6 @@ window.addEventListener('blur', () => {
 window.addEventListener('keydown', onKeyDown);
 window.addEventListener('keyup', onKeyUp);
 
-// touch
 const touchLeft = document.getElementById('touchLeft');
 const touchRight = document.getElementById('touchRight');
 const touchEnter = document.getElementById('touchEnter');
@@ -1866,14 +1811,12 @@ if (touchLeft && touchRight && touchEnter) {
     touchEnter.addEventListener('mouseleave', releaseEnter);
 }
 
-// boot
 gameActive = false;
 gameOver = false;
 statusSpan.textContent = '▶ PRESS ENTER';
 statusSpan.style.color = '#ffd93d';
 refreshHighScore();
 
-// floating dust on the menu
 for (let i = 0; i < 30; i++) {
     particles.push({
         x: Math.random() * W,
