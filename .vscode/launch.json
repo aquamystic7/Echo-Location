@@ -15,7 +15,6 @@
             "file": "/home/xgly/Echo-Location/index.html"
         },
         {
-            // haven't used this one in a while
             "name": "attach 9222",
             "type": "chrome",
             "request": "attach",
