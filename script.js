@@ -68,7 +68,6 @@ function sonarSound(panAmount) {
         ensureAudio();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        // stereo position based on where the bat is
         const direction = audioCtx.createStereoPanner();
 
         osc.type = 'sine';
