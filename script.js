@@ -1752,8 +1752,13 @@ if (touchLeft && touchRight && touchEnter) {
 
     function pressLeft(e) {
         e.preventDefault();
-        leftPressed = true;
         touchLeft.classList.add('active-touch');
+
+        if (gameActive && !gameOver && !countdownActive) {
+            leftPressed = true;
+        } else if (!gameActive && !countdownActive) {
+            switchDifficulty('ArrowLeft');
+        }
     }
     function releaseLeft(e) {
         e.preventDefault();
@@ -1769,8 +1774,13 @@ if (touchLeft && touchRight && touchEnter) {
 
     function pressRight(e) {
         e.preventDefault();
-        rightPressed = true;
         touchRight.classList.add('active-touch');
+
+        if (gameActive && !gameOver && !countdownActive) {
+            rightPressed = true;
+        } else if (!gameActive && !countdownActive) {
+            switchDifficulty('ArrowRight');
+        }
     }
     function releaseRight(e) {
         e.preventDefault();
