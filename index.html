@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Echo Location</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,192 +16,223 @@
 
         body {
             min-height: 100vh;
-            background: #050508;
+            background: #d9cbb5;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 119, 101, 0.08) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 20%, rgba(139, 119, 101, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 80%, rgba(139, 119, 101, 0.05) 0%, transparent 70%);
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            font-family: 'Courier New', monospace;
-            padding: 20px 10px;
+            font-family: 'IM Fell English', 'Georgia', serif;
+            padding: 30px 10px;
             touch-action: none;
             overflow-y: auto;
         }
 
         .game-container {
-            background: #0a0a12;
-            padding: 16px;
-            border: 3px solid #00ffff;
-            box-shadow: 0 0 0 2px #0a0a12, 0 0 0 5px #ff00ff;
+            background: #f4ead8;
+            padding: 24px;
+            border: 3px solid #5c4a32;
+            border-radius: 4px;
+            box-shadow:
+                0 0 0 1px #f4ead8,
+                0 0 0 4px #8b7355,
+                8px 8px 0 rgba(92, 74, 50, 0.25),
+                inset 0 0 60px rgba(139, 119, 101, 0.06);
             max-width: 550px;
             width: 100%;
+            position: relative;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 1px solid rgba(139, 115, 85, 0.3);
+            pointer-events: none;
+            border-radius: 2px;
         }
 
         canvas {
             display: block;
             margin: 0 auto;
-            background: #050508;
+            background: #2a2418;
             width: 100%;
             height: auto;
             cursor: none !important;
             touch-action: none;
-            border: 2px solid #00ffff;
+            border: 2px solid #5c4a32;
+            border-radius: 2px;
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7);
         }
 
         .ui {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 4px 8px 4px;
-            color: #00ffff;
-            font-size: 14px;
+            padding: 14px 6px 8px 6px;
+            color: #5c4a32;
+            font-size: 15px;
             font-weight: bold;
-            text-transform: uppercase;
             letter-spacing: 1px;
-            gap: 6px;
+            gap: 8px;
         }
 
         .score-box {
-            background: rgba(0, 255, 255, 0.08);
-            padding: 6px 12px;
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            font-size: 16px;
+            background: #e8dcc8;
+            padding: 6px 14px;
+            border: 2px solid #8b7355;
+            border-radius: 3px;
+            color: #3d6b3d;
+            font-size: 17px;
             font-weight: bold;
             white-space: nowrap;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.15);
         }
 
         .status-box {
-            background: rgba(255, 0, 255, 0.08);
-            padding: 6px 10px;
-            border: 2px solid #ff00ff;
-            color: #ff00ff;
-            font-size: 11px;
+            background: #e8dcc8;
+            padding: 6px 12px;
+            border: 2px solid #8b7355;
+            border-radius: 3px;
+            color: #8b5a2b;
+            font-size: 12px;
             letter-spacing: 1px;
             text-align: center;
             flex: 1;
-            text-transform: uppercase;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.15);
         }
 
         .high-score-badge {
-            background: rgba(255, 0, 255, 0.08);
-            border: 2px solid #ff00ff;
-            color: #ff00ff;
-            padding: 6px 12px;
-            font-size: 14px;
+            background: #e8dcc8;
+            border: 2px solid #8b7355;
+            color: #8b5a2b;
+            padding: 6px 14px;
+            border-radius: 3px;
+            font-size: 15px;
             letter-spacing: 1px;
             white-space: nowrap;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.15);
         }
 
         .controls-hint {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 6px 14px;
+            gap: 6px 16px;
             margin-top: 10px;
-            padding: 8px 0 4px 0;
-            border-top: 2px solid #00ffff;
-            color: #00ffff;
-            font-size: 11px;
-            text-transform: uppercase;
+            padding: 10px 0 6px 0;
+            border-top: 2px solid #c4b49a;
+            color: #6b5b45;
+            font-size: 12px;
             letter-spacing: 1px;
         }
 
         .controls-hint kbd {
-            background: #00ffff;
-            padding: 2px 8px;
-            color: #0a0a12;
-            border: 2px solid #ff00ff;
+            background: #5c4a32;
+            padding: 3px 10px;
+            border-radius: 3px;
+            color: #f4ead8;
+            border: 1px solid #3d3020;
             font-weight: bold;
-            font-size: 12px;
-            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-family: 'IM Fell English', 'Georgia', serif;
         }
 
         .disco-hint {
-            color: #ff00ff;
-            font-size: 10px;
-            background: rgba(255, 0, 255, 0.08);
-            padding: 2px 8px;
-            border: 2px solid #ff00ff;
-            text-transform: uppercase;
+            color: #8b5a2b;
+            font-size: 11px;
+            background: #e8dcc8;
+            padding: 3px 10px;
+            border-radius: 3px;
+            border: 1px solid #c4b49a;
         }
 
         .difficulty-section {
-            margin-top: 8px;
+            margin-top: 10px;
             text-align: center;
-            padding: 8px 0;
-            border-top: 2px solid #00ffff;
+            padding: 10px 0;
+            border-top: 2px solid #c4b49a;
         }
 
         .difficulty-label {
             display: block;
-            margin-bottom: 8px;
-            color: #00ffff;
-            font-size: 11px;
+            margin-bottom: 10px;
+            color: #5c4a32;
+            font-size: 12px;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
         }
 
         .difficulty-buttons {
             display: flex;
             justify-content: center;
-            gap: 6px;
+            gap: 10px;
         }
 
         .diff-btn {
-            background: rgba(0, 255, 255, 0.06);
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            padding: 8px 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
+            background: #e8dcc8;
+            border: 2px solid #8b7355;
+            color: #5c4a32;
+            padding: 10px 14px;
+            border-radius: 3px;
+            font-family: 'IM Fell English', 'Georgia', serif;
+            font-size: 13px;
             font-weight: bold;
-            text-transform: uppercase;
             letter-spacing: 1px;
             cursor: none !important;
             pointer-events: auto;
             flex: 1;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.15);
+            transition: all 0.1s ease;
         }
 
         .diff-btn:hover {
-            background: rgba(0, 255, 255, 0.2);
+            background: #f0e6d4;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.25);
         }
 
         .diff-btn.active {
-            background: #00ffff;
-            border-color: #ff00ff;
-            color: #0a0a12;
+            background: #5c4a32;
+            border-color: #3d3020;
+            color: #f4ead8;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.4);
         }
 
         .diff-btn.easy.active {
-            background: #00ff00;
-            border-color: #00ff00;
-            color: #0a0a12;
+            background: #3d6b3d;
+            border-color: #2a4a2a;
         }
 
         .diff-btn.medium.active {
-            background: #ffff00;
-            border-color: #ffff00;
-            color: #0a0a12;
+            background: #8b6b2b;
+            border-color: #6b5020;
         }
 
         .diff-btn.hard.active {
-            background: #ff0000;
-            border-color: #ff0000;
-            color: #0a0a12;
+            background: #8b3a2b;
+            border-color: #6b2a1a;
         }
 
         .legend {
-            margin-top: 8px;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid #ff00ff;
+            margin-top: 10px;
+            padding: 12px;
+            background: #e8dcc8;
+            border: 2px solid #8b7355;
+            border-radius: 3px;
+            box-shadow: 2px 2px 0 rgba(92, 74, 50, 0.15);
         }
 
         .legend-title {
             text-align: center;
-            margin-bottom: 6px;
-            color: #ff00ff;
-            font-size: 10px;
+            margin-bottom: 8px;
+            color: #5c4a32;
+            font-size: 11px;
             font-weight: bold;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -210,40 +241,40 @@
         .legend-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 3px;
+            gap: 4px;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 3px;
-            padding: 3px 4px;
-            background: rgba(0, 255, 255, 0.04);
-            border: 1px solid #00ffff;
+            padding: 4px 5px;
+            background: #f4ead8;
+            border: 1px solid #c4b49a;
+            border-radius: 2px;
             font-size: 9px;
-            color: #00ffff;
+            color: #5c4a32;
             overflow: hidden;
             white-space: nowrap;
             min-width: 0;
-            text-transform: uppercase;
         }
 
         .legend-icon {
             width: 14px;
-            font-size: 10px;
+            font-size: 11px;
             text-align: center;
             flex-shrink: 0;
         }
 
         .legend-label {
-            color: #ff00ff;
+            color: #5c4a32;
             font-weight: bold;
             font-size: 8px;
             flex-shrink: 0;
         }
 
         .legend-desc {
-            color: #00ffff;
+            color: #8b7355;
             font-size: 7px;
             margin-left: auto;
             overflow: hidden;
@@ -278,18 +309,19 @@
 
         .touch-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             pointer-events: none;
         }
 
         .touch-btn {
             pointer-events: auto;
-            width: 65px;
-            height: 65px;
-            border: 3px solid #00ffff;
-            background: rgba(0, 255, 255, 0.15);
-            color: #00ffff;
-            font-size: 26px;
+            width: 68px;
+            height: 68px;
+            border: 3px solid #8b7355;
+            border-radius: 6px;
+            background: #e8dcc8;
+            color: #5c4a32;
+            font-size: 28px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -297,38 +329,40 @@
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            box-shadow: 3px 3px 0 rgba(92, 74, 50, 0.3);
         }
 
         .touch-btn:active,
         .touch-btn.active-touch {
-            background: #00ffff;
-            color: #0a0a12;
-            border-color: #ff00ff;
+            background: #5c4a32;
+            color: #f4ead8;
+            border-color: #3d3020;
+            box-shadow: 1px 1px 0 rgba(92, 74, 50, 0.3);
         }
 
         #touchEnter {
-            width: 75px;
-            height: 75px;
-            font-size: 22px;
-            background: rgba(255, 0, 255, 0.15);
-            border-color: #ff00ff;
-            color: #ff00ff;
+            width: 78px;
+            height: 78px;
+            font-size: 24px;
+            background: #d4c4a8;
+            border-color: #8b7355;
+            color: #5c4a32;
         }
 
         #touchEnter:active,
         #touchEnter.active-touch {
-            background: #ff00ff;
-            color: #0a0a12;
-            border-color: #00ffff;
+            background: #8b5a2b;
+            color: #f4ead8;
+            border-color: #6b3f1a;
         }
 
         @media (max-width: 500px) {
-            .touch-btn { width: 55px; height: 55px; font-size: 20px; }
-            #touchEnter { width: 65px; height: 65px; font-size: 18px; }
+            .touch-btn { width: 58px; height: 58px; font-size: 22px; }
+            #touchEnter { width: 68px; height: 68px; font-size: 20px; }
             #touchControls { padding: 0 15px; bottom: 20px; }
         }
     </style>
@@ -354,35 +388,32 @@
         </div>
 
         <div class="controls-hint">
-            <span><kbd>←</kbd> <kbd>→</kbd> MOVE</span>
-            <span><kbd>ENTER</kbd> SONAR PING</span>
-            <span>COLLECT GREEN · DODGE RED</span>
-            <span class="disco-hint">🔥 5× ENTER = DISCO!</span>
+            <span><kbd>←</kbd> <kbd>→</kbd> Move</span>
+            <span><kbd>Enter</kbd> Sonar Ping</span>
+            <span>🎯 Collect green · Dodge red</span>
+            <span class="disco-hint">🔥 5× Enter = Disco!</span>
         </div>
 
         <div class="difficulty-section">
-            <span class="difficulty-label">
-                ⚙️ DIFFICULTY
-                <span style="color:#00ffff; font-weight:normal; font-size:9px;">(← → arrows)</span>
-            </span>
+            <span class="difficulty-label">⚙️ Difficulty</span>
             <div class="difficulty-buttons" id="difficultyButtons">
-                <button class="diff-btn easy"   data-diff="Easy">🟢 EASY</button>
-                <button class="diff-btn medium active" data-diff="Medium">🟡 MEDIUM</button>
-                <button class="diff-btn hard"   data-diff="Hard">🔴 HARD</button>
+                <button class="diff-btn easy"   data-diff="Easy">🟢 Easy</button>
+                <button class="diff-btn medium active" data-diff="Medium">🟡 Medium</button>
+                <button class="diff-btn hard"   data-diff="Hard">🔴 Hard</button>
             </div>
         </div>
 
         <div class="legend">
-            <div class="legend-title">💡 POWER-UPS — COLLECT FALLING ICONS</div>
+            <div class="legend-title">💡 Power-Ups — Collect Falling Icons</div>
             <div class="legend-grid">
-                <div class="legend-item"><span class="legend-icon">🛡️</span><span class="legend-label">SHIELD</span><span class="legend-desc">BLOCKS 1 HIT</span></div>
-                <div class="legend-item"><span class="legend-icon">⚡</span><span class="legend-label">SPEED</span><span class="legend-desc">2× FASTER</span></div>
-                <div class="legend-item"><span class="legend-icon">🧲</span><span class="legend-label">MAGNET</span><span class="legend-desc">ATTRACTS</span></div>
-                <div class="legend-item"><span class="legend-icon">⭐</span><span class="legend-label">2× POINTS</span><span class="legend-desc">DOUBLE SCORE</span></div>
-                <div class="legend-item"><span class="legend-icon">⏳</span><span class="legend-label">SLOW MO</span><span class="legend-desc">SLOWER OBSTACLES</span></div>
-                <div class="legend-item"><span class="legend-icon">🔽</span><span class="legend-label">MINI BAT</span><span class="legend-desc">SMALLER HITBOX</span></div>
-                <div class="legend-item"><span class="legend-icon">🌈</span><span class="legend-label">MULTI-SHOT</span><span class="legend-desc">3 SONAR PINGS</span></div>
-                <div class="legend-item"><span class="legend-icon">❤️</span><span class="legend-label">EXTRA LIFE</span><span class="legend-desc">+1 HEART</span></div>
+                <div class="legend-item"><span class="legend-icon">🛡️</span><span class="legend-label">Shield</span><span class="legend-desc">Blocks 1 hit</span></div>
+                <div class="legend-item"><span class="legend-icon">⚡</span><span class="legend-label">Speed</span><span class="legend-desc">2× faster</span></div>
+                <div class="legend-item"><span class="legend-icon">🧲</span><span class="legend-label">Magnet</span><span class="legend-desc">Attracts</span></div>
+                <div class="legend-item"><span class="legend-icon">⭐</span><span class="legend-label">2× Points</span><span class="legend-desc">Double score</span></div>
+                <div class="legend-item"><span class="legend-icon">⏳</span><span class="legend-label">Slow Motion</span><span class="legend-desc">Obstacles slow</span></div>
+                <div class="legend-item"><span class="legend-icon">🔽</span><span class="legend-label">Mini Bat</span><span class="legend-desc">Smaller hitbox</span></div>
+                <div class="legend-item"><span class="legend-icon">🌈</span><span class="legend-label">Multi-Shot</span><span class="legend-desc">3 sonar pings</span></div>
+                <div class="legend-item"><span class="legend-icon">❤️</span><span class="legend-label">Extra Life</span><span class="legend-desc">+1 heart</span></div>
             </div>
         </div>
 
