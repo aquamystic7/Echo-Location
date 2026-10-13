@@ -628,6 +628,9 @@ function startNewGame() {
     gameActive = false;
     frameCount = 0;
 
+    leftPressed = false;
+    rightPressed = false;
+
     sonarActive = false;
     sonarTimer = 0;
     sonarCooldown = 0;
@@ -689,6 +692,9 @@ function endGame() {
 
     gameActive = false;
     gameOver = true;
+
+    leftPressed = false;
+    rightPressed = false;
 
     statusSpan.textContent = '💀 GAME OVER - Press Enter';
     statusSpan.style.color = '#8b3a2b';
@@ -1421,12 +1427,15 @@ function draw() {
     ctx.arc(player.x + player.w - 10, player.y + 14, 5, 0, Math.PI * 2);
     ctx.fill();
 
+    const eyesLooking = gameActive && !gameOver && !countdownActive;
+    const eyeL = (eyesLooking && leftPressed) ? -2 : 2;
+    const eyeR = (eyesLooking && rightPressed) ? 2 : -2;
     ctx.fillStyle = '#1a1a2e';
     ctx.beginPath();
-    ctx.arc(player.x + 10 + (leftPressed ? -2 : 2), player.y + 15, 2.5, 0, Math.PI * 2);
+    ctx.arc(player.x + 10 + eyeL, player.y + 15, 2.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(player.x + player.w - 10 + (rightPressed ? 2 : -2), player.y + 15, 2.5, 0, Math.PI * 2);
+    ctx.arc(player.x + player.w - 10 + eyeR, player.y + 15, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     for (let p of particles) {
@@ -1656,9 +1665,11 @@ function setDifficulty(name) {
 
     statusSpan.textContent = '🎯 ' + currentDifficulty;
     statusSpan.style.color = '#3d6b3d';
+    statusSpan.style.background = 'rgba(61, 107, 61, 0.25)';
 
     clearTimeout(window._diffTimeout);
     window._diffTimeout = setTimeout(() => {
+        statusSpan.style.background = '';
         if (gameActive || countdownActive) return;
         if (gameOver) {
             statusSpan.textContent = '💀 GAME OVER - Press Enter';
@@ -1751,7 +1762,7 @@ if (touchLeft && touchRight && touchEnter) {
     let lastTap = 0;
 
     function pressLeft(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         touchLeft.classList.add('active-touch');
 
         if (gameActive && !gameOver && !countdownActive) {
@@ -1761,7 +1772,7 @@ if (touchLeft && touchRight && touchEnter) {
         }
     }
     function releaseLeft(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         leftPressed = false;
         touchLeft.classList.remove('active-touch');
     }
@@ -1773,7 +1784,7 @@ if (touchLeft && touchRight && touchEnter) {
     touchLeft.addEventListener('mouseleave', releaseLeft);
 
     function pressRight(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         touchRight.classList.add('active-touch');
 
         if (gameActive && !gameOver && !countdownActive) {
@@ -1783,7 +1794,7 @@ if (touchLeft && touchRight && touchEnter) {
         }
     }
     function releaseRight(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         rightPressed = false;
         touchRight.classList.remove('active-touch');
     }
@@ -1795,7 +1806,7 @@ if (touchLeft && touchRight && touchEnter) {
     touchRight.addEventListener('mouseleave', releaseRight);
 
     function pressEnter(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         touchEnter.classList.add('active-touch');
 
         const now = Date.now();
@@ -1817,12 +1828,14 @@ if (touchLeft && touchRight && touchEnter) {
             return;
         }
 
+        try { ensureAudio(); } catch (err) {}
+
         if (gameActive && !gameOver && !countdownActive) trySonar();
         else if (gameOver || (!gameActive && !countdownActive)) startNewGame();
     }
 
     function releaseEnter(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         touchEnter.classList.remove('active-touch');
         touchEnter.style.background = '';
         touchEnter.style.borderColor = '';
@@ -1838,6 +1851,10 @@ if (touchLeft && touchRight && touchEnter) {
 
 gameActive = false;
 gameOver = false;
+countdownActive = false;
+leftPressed = false;
+rightPressed = false;
+
 statusSpan.textContent = '▶ PRESS ENTER';
 statusSpan.style.color = '#8b6b2b';
 refreshHighScore();
