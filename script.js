@@ -1676,47 +1676,51 @@ function switchDifficulty(key) {
     setDifficulty(difficultyOptions[(i + step + difficultyOptions.length) % difficultyOptions.length]);
 }
 
-diffButtons.forEach(btn => {
-    function handleDiff(e) {
-        e.preventDefault();
+for (let i = 0; i < diffButtons.length; i++) {
+    diffButtons[i].onclick = function(e) {
+        if (e) e.preventDefault();
         if (gameActive || countdownActive) return;
-        ensureAudio();
-        setDifficulty(btn.dataset.diff);
-    }
-    btn.addEventListener('click', handleDiff);
-    btn.addEventListener('touchend', handleDiff);
-});
+        setDifficulty(this.dataset.diff);
+    };
+    diffButtons[i].ontouchend = function(e) {
+        if (e) e.preventDefault();
+        if (gameActive || countdownActive) return;
+        setDifficulty(this.dataset.diff);
+    };
+}
 
 function onKeyDown(e) {
     const key = e.key;
 
-    if (key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter' || key === ' ') {
-        e.preventDefault();
-        ensureAudio();
-    }
-
     if (key === 'ArrowLeft' || key === 'ArrowRight') {
+        e.preventDefault();
+
         if (!gameActive && !countdownActive) {
             switchDifficulty(key);
             return;
         }
+
+        if (gameActive && !gameOver) {
+            if (key === 'ArrowLeft') leftPressed = true;
+            else rightPressed = true;
+        }
+        return;
     }
 
-    if (key === 'Enter') {
+    if (key === 'Enter' || key === ' ') {
+        e.preventDefault();
+        try { ensureAudio(); } catch (err) {}
+
         if (gameOver || onTitleScreen()) {
             startNewGame();
             return;
         }
+
         if (gameActive && !gameOver) {
             trySonar();
             trackDiscoPress();
         }
         return;
-    }
-
-    if (gameActive && !gameOver) {
-        if (key === 'ArrowLeft') leftPressed = true;
-        else if (key === 'ArrowRight') rightPressed = true;
     }
 }
 
